@@ -13,11 +13,35 @@ return {
                 group_empty = true,
             },
             filters = {
-                dotfiles = true,
+                dotfiles = false,
+                git_ignored = false,
             },
+            on_attach = function(bufnr)
+                local api = require("nvim-tree.api")
+                api.config.mappings.default_on_attach(bufnr)
+                vim.keymap.set('n', 'H', api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle Hidden Files" })
+                vim.keymap.set('n', 'I', api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle Git Ignored Files" })
+            end,
         })
 
-        vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeToggle<CR>', { noremap = true, silent = true })
-        vim.keymap.set('i', '<leader>e', '<cmd>NvimTreeToggle<CR>', { noremap = true, silent = true })
+        -- 打开/关闭目录树
+        vim.keymap.set({'n', 'i'}, '<leader>e', '<cmd>NvimTreeToggle<CR>', { noremap = true, silent = true, desc = "Toggle NvimTree" })
+        -- 查找当前文件在目录树中的位置
+        vim.keymap.set({'n', 'i'}, '<leader>f', '<cmd>NvimTreeFindFile<CR>', { noremap = true, silent = true, desc = "Find file in NvimTree" })
+    end,
+    -- 启动时默认打开目录树
+    init = function()
+        -- 当打开 Neovim 且没有参数时，默认打开目录树
+        vim.api.nvim_create_autocmd("VimEnter", {
+            callback = function(data)
+                -- 如果是目录或没有文件参数
+                local directory = vim.fn.isdirectory(data.file) == 1
+                local no_file = data.file == ""
+                if directory or no_file then
+                    -- 打开目录树
+                    require("nvim-tree.api").tree.open()
+                end
+            end,
+        })
     end,
 }

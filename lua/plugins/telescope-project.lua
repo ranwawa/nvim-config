@@ -14,6 +14,7 @@ return {
         {'~/Documents/zmn', max_depth = 3},
         {'~/Documents/Projects', max_depth = 3},
         {'~/Documents/LEARNING', max_depth = 3},
+        {'~/.config/nvim', max_depth = 3},
       },
       hidden_files = true, -- default: false
       theme = "dropdown",
