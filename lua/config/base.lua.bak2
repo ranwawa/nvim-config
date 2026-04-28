@@ -55,46 +55,7 @@ vim.o.clipboard = 'unnamedplus'
 vim.api.nvim_create_autocmd("VimLeave", {
   callback = function()
     local config_dir = vim.fn.stdpath("config")
-    local log_path = vim.fn.stdpath("state") .. "/nvim-config-sync.log"
-
-    local function run(cmd)
-      local output = vim.fn.system(cmd)
-      return vim.v.shell_error, output
-    end
-
-    local function log_failure(step, code, output)
-      pcall(vim.fn.mkdir, vim.fn.stdpath("state"), "p")
-      pcall(vim.fn.writefile, {
-        os.date("%Y-%m-%d %H:%M:%S"),
-        "step: " .. step,
-        "exit_code: " .. code,
-        output,
-        "",
-      }, log_path, "a")
-    end
-
-    local add_code, add_output = run({ "git", "-C", config_dir, "add", "-A" })
-    if add_code ~= 0 then
-      log_failure("git add -A", add_code, add_output)
-      return
-    end
-
-    local diff_code, diff_output = run({ "git", "-C", config_dir, "diff", "--cached", "--quiet" })
-    if diff_code == 1 then
-      local commit_code, commit_output = run({ "git", "-C", config_dir, "commit", "-m", "auto: sync nvim config" })
-      if commit_code ~= 0 then
-        log_failure("git commit", commit_code, commit_output)
-        return
-      end
-    elseif diff_code ~= 0 then
-      log_failure("git diff --cached --quiet", diff_code, diff_output)
-      return
-    end
-
-    local push_code, push_output = run({ "git", "-C", config_dir, "push" })
-    if push_code ~= 0 then
-      log_failure("git push", push_code, push_output)
-    end
+    vim.fn.system("cd " .. config_dir .. " && git add -A && git diff --cached --quiet || (git commit -m 'auto: sync nvim config' && git push)")
   end,
 })
 
