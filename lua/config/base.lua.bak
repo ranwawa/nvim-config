@@ -38,12 +38,8 @@ vim.wo.number = true
 -- 启用相对行号
 vim.wo.relativenumber = true
 
--- Neovim 0.12 使用内置 treesitter foldexpr，比旧的 nvim_treesitter#foldexpr() 更稳定
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldenable = true
-vim.opt.foldlevel = 99
-vim.opt.foldlevelstart = 99
+vim.wo.foldmethod = "expr" -- 使用表达式折叠
+vim.wo.foldexpr = "nvim_treesitter#foldexpr()" -- 使用treesitter的折叠表达式
 
 -- 配置系统剪贴板，确保同时支持 * 和 + 寄存器
 -- 这样无论是使用 pbcopy/pbpaste（macOS）还是 xclip/xsel（Linux）都能正常工作
