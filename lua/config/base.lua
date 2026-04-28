@@ -52,48 +52,100 @@ vim.o.clipboard = 'unnamedplus'
 -- 确保在 tmux 中运行时，nvim 能正确检测并使用系统剪贴板
 -- 检查是否在 tmux 中运行
 -- 退出 nvim 时自动提交并推送配置变更
-vim.api.nvim_create_autocmd("VimLeave", {
+vim.api.nvim_create_autocmd("VimLeavePre", {
   callback = function()
     local config_dir = vim.fn.stdpath("config")
     local log_path = vim.fn.stdpath("state") .. "/nvim-config-sync.log"
+    local shell_script = string.format([[
+mkdir -p %s
+cd %s || exit 0
 
-    local function run(cmd)
-      local output = vim.fn.system(cmd)
-      return vim.v.shell_error, output
-    end
+log_failure() {
+  timestamp=$(date '+%%Y-%%m-%%d %%H:%%M:%%S')
+  step="$1"
+  code="$2"
+  output="$3"
+  {
+    printf '%%s\n' "$timestamp"
+    printf 'step: %%s\n' "$step"
+    printf 'exit_code: %%s\n' "$code"
+    printf '%%s\n\n' "$output"
+  } >> %s
+}
 
-    local function log_failure(step, code, output)
-      pcall(vim.fn.mkdir, vim.fn.stdpath("state"), "p")
-      pcall(vim.fn.writefile, {
-        os.date("%Y-%m-%d %H:%M:%S"),
-        "step: " .. step,
-        "exit_code: " .. code,
-        output,
-        "",
-      }, log_path, "a")
-    end
+git add -A >/dev/null 2>&1
+add_code=$?
+if [ "$add_code" -ne 0 ]; then
+  add_output=$(git add -A 2>&1)
+  log_failure "git add -A" "$add_code" "$add_output"
+  exit 0
+fi
 
-    local add_code, add_output = run({ "git", "-C", config_dir, "add", "-A" })
-    if add_code ~= 0 then
-      log_failure("git add -A", add_code, add_output)
-      return
-    end
+git diff --cached --quiet >/dev/null 2>&1
+diff_code=$?
+if [ "$diff_code" -eq 1 ]; then
+  commit_output=$(git commit -m 'auto: sync nvim config' 2>&1)
+  commit_code=$?
+  if [ "$commit_code" -ne 0 ]; then
+    log_failure "git commit" "$commit_code" "$commit_output"
+    exit 0
+  fi
+elif [ "$diff_code" -ne 0 ]; then
+  diff_output=$(git diff --cached --quiet 2>&1)
+  log_failure "git diff --cached --quiet" "$diff_code" "$diff_output"
+  exit 0
+fi
 
-    local diff_code, diff_output = run({ "git", "-C", config_dir, "diff", "--cached", "--quiet" })
-    if diff_code == 1 then
-      local commit_code, commit_output = run({ "git", "-C", config_dir, "commit", "-m", "auto: sync nvim config" })
-      if commit_code ~= 0 then
-        log_failure("git commit", commit_code, commit_output)
-        return
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)
+if [ -z "$upstream" ]; then
+  exit 0
+fi
+
+remote_name=${upstream%%/*}
+fetch_output=$(git fetch "$remote_name" 2>&1)
+fetch_code=$?
+if [ "$fetch_code" -ne 0 ]; then
+  log_failure "git fetch" "$fetch_code" "$fetch_output"
+  exit 0
+fi
+
+counts=$(git rev-list --left-right --count "$upstream...HEAD" 2>/dev/null)
+counts_code=$?
+if [ "$counts_code" -ne 0 ]; then
+  log_failure "git rev-list --left-right --count" "$counts_code" "$counts"
+  exit 0
+fi
+
+behind_count=$(printf '%%s' "$counts" | awk '{print $1}')
+ahead_count=$(printf '%%s' "$counts" | awk '{print $2}')
+
+if [ "$behind_count" -gt 0 ]; then
+  log_failure "sync skipped" "0" "Upstream $upstream is ahead by $behind_count commit(s); run: git pull --rebase"
+  exit 0
+fi
+
+if [ "$ahead_count" -gt 0 ]; then
+  push_output=$(git push 2>&1)
+  push_code=$?
+  if [ "$push_code" -ne 0 ]; then
+    log_failure "git push" "$push_code" "$push_output"
+  fi
+fi
+]], vim.fn.shellescape(vim.fn.stdpath("state")), vim.fn.shellescape(config_dir), vim.fn.shellescape(log_path))
+
+    local handle
+    handle = vim.uv.spawn("/bin/sh", {
+      args = { "-lc", shell_script },
+      detached = true,
+      stdio = { nil, nil, nil },
+    }, function()
+      if handle and not handle:is_closing() then
+        handle:close()
       end
-    elseif diff_code ~= 0 then
-      log_failure("git diff --cached --quiet", diff_code, diff_output)
-      return
-    end
+    end)
 
-    local push_code, push_output = run({ "git", "-C", config_dir, "push" })
-    if push_code ~= 0 then
-      log_failure("git push", push_code, push_output)
+    if handle then
+      handle:unref()
     end
   end,
 })
