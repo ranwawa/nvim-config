@@ -84,7 +84,17 @@ local M = {
         patch_query_predicates_for_nvim_012()
         require("nvim-treesitter.configs").setup({
             -- 确保安装 Markdown 解析器
-            ensure_installed = { "markdown", "markdown_inline", "lua", "javascript", "typescript" },
+            ensure_installed = {
+                "javascript",
+                "json",
+                "jsonc",
+                "lua",
+                "markdown",
+                "markdown_inline",
+                "tsx",
+                "typescript",
+            },
+            auto_install = true,
 
             -- 启用语法高亮
             highlight = {
