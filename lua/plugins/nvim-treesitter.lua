@@ -83,7 +83,7 @@ local M = {
     config = function()
         patch_query_predicates_for_nvim_012()
         require("nvim-treesitter.configs").setup({
-            -- 确保安装 Markdown 解析器
+            -- 确保安装常用解析器
             ensure_installed = {
                 "javascript",
                 "json",
@@ -100,9 +100,6 @@ local M = {
             highlight = {
                 enable = true,
                 additional_vim_regex_highlighting = false,
-            },
-            fold = {
-                 enable = true, -- 启用代码折叠
             },
             -- 其他配置项...
         })
