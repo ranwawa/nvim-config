@@ -5,6 +5,10 @@
 vim.g.mapleader = "\\"
 vim.g.maplocalleader = "\\"
 
+-- 启用真彩色并加载内置配色
+vim.opt.termguicolors = true
+vim.cmd.colorscheme("catppuccin")
+
 -- 设置 tab 宽度为 2 个空格
 vim.opt.tabstop = 2
 -- 当插入 tab 时，将其转换为相应数量的空格
