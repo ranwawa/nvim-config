@@ -27,7 +27,7 @@ return {
         -- 打开/关闭目录树
         vim.keymap.set({'n', 'i'}, '<leader>e', '<cmd>NvimTreeToggle<CR>', { noremap = true, silent = true, desc = "Toggle NvimTree" })
         -- 查找当前文件在目录树中的位置
-        vim.keymap.set({'n', 'i'}, '<leader>f', '<cmd>NvimTreeFindFile<CR>', { noremap = true, silent = true, desc = "Find file in NvimTree" })
+        vim.keymap.set({'n', 'i'}, '<leader>fe', '<cmd>NvimTreeFindFile<CR>', { noremap = true, silent = true, desc = "Find file in NvimTree" })
 
         -- 当 nvim-tree 是最后一个窗口时自动退出
         vim.api.nvim_create_autocmd("QuitPre", {

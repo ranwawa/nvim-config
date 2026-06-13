@@ -9,6 +9,9 @@ vim.g.maplocalleader = "\\"
 vim.opt.termguicolors = true
 vim.cmd.colorscheme("catppuccin")
 
+-- 允许在 picker 和目录树里用鼠标点选条目
+vim.opt.mouse = "a"
+
 -- 设置 tab 宽度为 2 个空格
 vim.opt.tabstop = 2
 -- 当插入 tab 时，将其转换为相应数量的空格
