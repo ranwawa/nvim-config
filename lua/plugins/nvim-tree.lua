@@ -4,6 +4,11 @@ return {
         'nvim-tree/nvim-web-devicons', -- 可选，用于显示文件图标
     },
     config = function()
+        local function set_git_ignored_highlight()
+            vim.api.nvim_set_hl(0, "NvimTreeGitIgnoredIcon", { fg = "#6c7086" })
+            vim.api.nvim_set_hl(0, "NvimTreeGitFileIgnoredHL", { fg = "#6c7086" })
+        end
+
         require('nvim-tree').setup({
             sort_by = "case_sensitive",
             view = {
@@ -11,6 +16,7 @@ return {
             },
             renderer = {
                 group_empty = true,
+                highlight_git = "name",
             },
             filters = {
                 dotfiles = false,
@@ -22,6 +28,11 @@ return {
                 vim.keymap.set('n', 'H', api.tree.toggle_hidden_filter, { buffer = bufnr, desc = "Toggle Hidden Files" })
                 vim.keymap.set('n', 'I', api.tree.toggle_gitignore_filter, { buffer = bufnr, desc = "Toggle Git Ignored Files" })
             end,
+        })
+
+        set_git_ignored_highlight()
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            callback = set_git_ignored_highlight,
         })
 
         -- 打开/关闭目录树
