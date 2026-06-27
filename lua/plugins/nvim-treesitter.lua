@@ -86,6 +86,7 @@ local M = {
             -- 确保安装常用解析器
             ensure_installed = {
                 "javascript",
+                "html",
                 "json",
                 "jsonc",
                 "lua",
@@ -93,6 +94,7 @@ local M = {
                 "markdown_inline",
                 "tsx",
                 "typescript",
+                "yaml",
             },
             auto_install = true,
 
