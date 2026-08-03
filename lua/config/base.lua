@@ -5,9 +5,8 @@
 vim.g.mapleader = "\\"
 vim.g.maplocalleader = "\\"
 
--- 启用真彩色并加载内置配色
+-- 启用真彩色（colorscheme 由 catppuccin 插件负责设置）
 vim.opt.termguicolors = true
-vim.cmd.colorscheme("catppuccin")
 
 -- 允许在 picker 和目录树里用鼠标点选条目
 vim.opt.mouse = "a"
