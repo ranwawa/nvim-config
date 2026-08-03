@@ -1,24 +1,28 @@
 local M = {
 	"nvim-treesitter/nvim-treesitter",
-	build = ":TSUpdate",
+	branch = "master", -- master 分支使用旧 API，无需 tree-sitter CLI
+	build = function()
+		require("nvim-treesitter.install").update({ with_sync = true })()
+	end,
 	config = function()
-		require("nvim-treesitter").setup({
-			-- 安装目录，默认值即可
-			-- install_dir = vim.fn.stdpath("data") .. "/site",
-		})
-
-		-- 安装常用解析器（异步）
-		require("nvim-treesitter").install({
-			"javascript",
-			"html",
-			"json",
-			"jsonc",
-			"lua",
-			"markdown",
-			"markdown_inline",
-			"tsx",
-			"typescript",
-			"yaml",
+		require("nvim-treesitter.configs").setup({
+			ensure_installed = {
+				"javascript",
+				"html",
+				"json",
+				"jsonc",
+				"lua",
+				"markdown",
+				"markdown_inline",
+				"tsx",
+				"typescript",
+				"yaml",
+			},
+			auto_install = true,
+			highlight = {
+				enable = true,
+				additional_vim_regex_highlighting = false,
+			},
 		})
 	end,
 }
