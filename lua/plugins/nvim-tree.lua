@@ -11,6 +11,10 @@ return {
 
         require('nvim-tree').setup({
             sort_by = "case_sensitive",
+            follow_current_file = {
+                enable = true,       -- 跟随当前文件，自动在树中高亮/定位
+                leave_dirs_open = false,
+            },
             view = {
                 width = 30,
             },
