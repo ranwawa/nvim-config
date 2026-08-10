@@ -11,7 +11,7 @@ local function setup_lsp_keys()
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
       vim.keymap.set("n", "gh", vim.lsp.buf.hover, opts)
       vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-      vim.keymap.set("n", "g;", vim.lsp.buf.jump_back, opts)
+      vim.keymap.set("n", "g;", "<C-o>", opts)            -- 跳回上次位置（Vim 原生）
     end,
   })
 end
