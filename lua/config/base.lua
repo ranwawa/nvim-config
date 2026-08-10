@@ -49,6 +49,19 @@ vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldenable = true
 vim.opt.foldcolumn = "1"
+
+-- treesitter parser 装了并不会自动启用 highlighter，而 foldexpr 依赖 highlighter
+-- 建立的 language tree；这里对支持的语言显式 start()，否则 za 会报 E490: No fold found
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function()
+    if vim.treesitter.language.add then
+      local ok = pcall(vim.treesitter.language.add, vim.bo.filetype)
+      if ok and vim.treesitter.language.inspect(vim.bo.filetype) then
+        vim.treesitter.start() -- 该语言有 parser 才开启 highlighter + lang tree
+      end
+    end
+  end,
+})
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
 
