@@ -1,19 +1,6 @@
 -- 折叠 + 高亮依赖 tree-sitter
 -- 新版 nvim-treesitter（2026 重构版）：setup 只收 install_dir；安装用 install{}，
--- 且从源码编译 parser 需要系统工具链（tree-sitter-cli / cc / make）
-local tools = {
-  { cmd = "tree-sitter",   type = "CLI",        provided_by = "mason-tool-installer 自动安装" },
-  { cmd = "cc",            type = "C 编译器",    provided_by = "系统包: sudo apt install build-essential" },
-  { cmd = "make",          type = "构建工具",    provided_by = "系统包: sudo apt install build-essential" },
-}
-
--- 启动时探测工具链，缺失则补装/提醒
-if vim.fn.executable("tree-sitter") == 0 or vim.fn.executable("make") == 0 then
-  vim.schedule(function()
-    vim.notify("tree-sitter 工具链缺失：检查 " .. vim.inspect(tools), vim.log.levels.WARN, { title = "nvim-treesitter" })
-  end)
-end
-
+-- 且编译 parser 需要系统工具链（tree-sitter-cli / cc / make）
 return {
   "nvim-treesitter/nvim-treesitter",
   -- 新版本 build 在插件更新后自动跑 :TSUpdate，sync 已安装 parser
@@ -41,5 +28,20 @@ return {
       "yaml",
       "toml",
     }
+
+    -- 缺编译工具链才提醒（mason 会把它的 bin 加进 PATH，这里要等它完成）
+    vim.schedule(function()
+      local missing = {}
+      if vim.fn.executable("tree-sitter") == 0 then
+        table.insert(missing, "tree-sitter-cli（mason-tool-installer 自动装，或 :MasonInstall tree-sitter-cli）")
+      end
+      if #missing > 0 then
+        vim.notify(
+          "tree-sitter 工具链缺失：" .. table.concat(missing, "；"),
+          vim.log.levels.WARN,
+          { title = "nvim-treesitter" }
+        )
+      end
+    end)
   end,
 }
