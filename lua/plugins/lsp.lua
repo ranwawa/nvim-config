@@ -36,10 +36,9 @@ return {
     "neovim/nvim-lspconfig",
     config = function()
       setup_lsp_keys()
-      -- 之后需要为具体语言的 server 调 lspconfig.<name>.setup{}。
-      -- ts_ls 由 mason-lspconfig 的 automatic_enable 自动启动，
-      -- 如需自定义 ts_ls 选项在此添加：
-      -- require("lspconfig").ts_ls.setup({ ... })
+      -- 显式启动 TypeScript 语言服务器（跨文件跳转、引用查找依赖它）
+      -- 二进制由 Mason 提供（typescript-language-server），lspconfig 自动发现
+      require("lspconfig").ts_ls.setup({})
     end,
   },
 }
