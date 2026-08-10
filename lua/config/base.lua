@@ -55,8 +55,12 @@ vim.opt.foldcolumn = "1"
 vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     if vim.treesitter.language.add then
-      local ok = pcall(vim.treesitter.language.add, vim.bo.filetype)
-      if ok and vim.treesitter.language.inspect(vim.bo.filetype) then
+      local lang = vim.bo.filetype
+      -- 有些 filetype（如 NvimTree、help、terminal）没有 parser，
+      -- add 不会报错但 inspect 会抛 "no such language"，这里一起 pcall 守护
+      local ok = pcall(vim.treesitter.language.add, lang)
+      local available = ok and pcall(vim.treesitter.language.inspect, lang)
+      if available then
         vim.treesitter.start() -- 该语言有 parser 才开启 highlighter + lang tree
       end
     end
