@@ -107,7 +107,10 @@ local function setup_dap()
     dapui.eval(nil, { enter = true, context = "repl" })
   end, { desc = "DAP 求值选中表达式" })
   map("n", "<leader>dE", function()
-    dapui.eval(vim.fn.input("表达式: "), { enter = true, context = "repl" })
+    local expr = vim.fn.input("表达式: ")
+    if expr ~= "" then
+      dapui.eval(expr, { enter = true, context = "repl" })
+    end
   end, { desc = "DAP 求值输入表达式" })
   map("n", "<leader>du", dapui.toggle, { desc = "DAP 切换 UI" })
   map("n", "<leader>dt", dap.terminate, { desc = "DAP 结束会话" })
